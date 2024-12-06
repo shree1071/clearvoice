@@ -1,4 +1,3 @@
-index.html:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,6 +61,10 @@ index.html:
             background: #e0f2fe; /* Light blue background for reviews */
             color: #1e3a8a;
         }
+
+        .review-container {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -89,7 +92,6 @@ index.html:
             <!-- Work Culture Ratings -->
             <h4 class="mb-3">Rate the Following Work Culture Aspects (1-5)</h4>
             <div id="criteria">
-                <!-- Repeatable Criteria -->
                 <div class="mb-3">
                     <label for="transparencyRating" class="form-label">Transparency</label>
                     <input type="number" class="form-control" id="transparencyRating" min="1" max="5" required>
@@ -137,7 +139,7 @@ index.html:
 
         <!-- Section to Display Reviews -->
         <h2 class="text-primary">All Reviews</h2>
-        <div id="reviews" class="list-group"></div>
+        <div id="reviews" class="list-group review-container"></div>
     </div>
 
     <script>
@@ -148,25 +150,20 @@ index.html:
             // Get form values
             const email = document.getElementById('email').value;
             const reviewText = document.getElementById('reviewText').value;
-            const ratings = [
-                "Transparency",
-                "Workload",
-                "Communication",
-                "Respect",
-                "Inclusivity",
-                "Work Environment",
-                "Management Support",
-                "Learning Opportunities",
-                "Stress Management",
-                "Team Bonding"
-            ];
 
-            // Collect the ratings from the form inputs
-            const reviewRatings = ratings.map(criteria => {
-                return document.getElementById(criteria.replace(" ", "").toLowerCase() + "Rating").value;
-            });
+            // Collect all ratings from the form
+            const transparencyRating = document.getElementById('transparencyRating').value;
+            const workloadRating = document.getElementById('workloadRating').value;
+            const communicationRating = document.getElementById('communicationRating').value;
+            const respectRating = document.getElementById('respectRating').value;
+            const inclusivityRating = document.getElementById('inclusivityRating').value;
+            const workEnvironmentRating = document.getElementById('workEnvironmentRating').value;
+            const managementSupportRating = document.getElementById('managementSupportRating').value;
+            const learningOpportunitiesRating = document.getElementById('learningOpportunitiesRating').value;
+            const stressManagementRating = document.getElementById('stressManagementRating').value;
+            const teamBondingRating = document.getElementById('teamBondingRating').value;
 
-            // Email validation
+            // Check if email ends with '@bmsit.in'
             if (!email.endsWith('@bmsit.in')) {
                 document.getElementById('emailError').style.display = 'block';
                 return;
@@ -174,22 +171,29 @@ index.html:
                 document.getElementById('emailError').style.display = 'none';
             }
 
-            // Create a new review element
+            // Create a new review item element
             const reviewItem = document.createElement('div');
             reviewItem.className = 'list-group-item mb-3';
-            
-            // Construct the review content, including ratings dynamically
+
+            // Insert the review details into the new review item
             reviewItem.innerHTML = `
                 <h5>${email}</h5>
                 <p>${reviewText}</p>
                 <ul>
-                    ${ratings.map((criteria, index) => {
-                        return `<li>${criteria}: ${reviewRatings[index]}/5</li>`;
-                    }).join('')}
+                    <li>Transparency: ${transparencyRating}/5</li>
+                    <li>Workload: ${workloadRating}/5</li>
+                    <li>Communication: ${communicationRating}/5</li>
+                    <li>Respect: ${respectRating}/5</li>
+                    <li>Inclusivity: ${inclusivityRating}/5</li>
+                    <li>Work Environment: ${workEnvironmentRating}/5</li>
+                    <li>Management Support: ${managementSupportRating}/5</li>
+                    <li>Learning Opportunities: ${learningOpportunitiesRating}/5</li>
+                    <li>Stress Management: ${stressManagementRating}/5</li>
+                    <li>Team Bonding: ${teamBondingRating}/5</li>
                 </ul>
             `;
 
-            // Add the review to the reviews section
+            // Append the new review to the reviews section
             document.getElementById('reviews').appendChild(reviewItem);
 
             // Clear the form
