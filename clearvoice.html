@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Voice - BMSIT Reviews</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1d4ed8; /* Blue color */
+        }
+        .logo span {
+            color: #0ea5e9; /* Lighter blue for accent */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="mb-4 text-center">
+            <div class="logo">
+                Clear<span>Voice</span>
+            </div>
+            <p>Your trusted platform for honest reviews at BMSIT.</p>
+        </header>
+
+        <!-- Form to Add Reviews -->
+        <form id="reviewForm" class="mb-4">
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter your BMSIT email" required>
+                <div id="emailError" class="text-danger mt-1" style="display: none;">Email must end with @bmsit.in</div>
+            </div>
+            <div class="mb-3">
+                <label for="reviewText" class="form-label">Your General Review</label>
+                <textarea class="form-control" id="reviewText" rows="3" placeholder="Write your general review here..." required></textarea>
+            </div>
+
+            <!-- Work Culture Ratings -->
+            <h4>Rate the Following Work Culture Aspects (1-5)</h4>
+            <div id="criteria">
+                <div class="mb-3">
+                    <label for="transparencyRating" class="form-label">Transparency</label>
+                    <input type="number" class="form-control" id="transparencyRating" min="1" max="5" required>
+                </div>
+                <div class="mb-3">
+                    <label for="workloadRating" class="form-label">Workload</label>
+                    <input type="number" class="form-control" id="workloadRating" min="1" max="5" required>
+                </div>
+                <div class="mb-3">
+                    <label for="communicationRating" class="form-label">Communication</label>
+                    <input type="number" class="form-control" id="communicationRating" min="1" max="5" required>
+                </div>
+                <div class="mb-3">
+                    <label for="respectRating" class="form-label">Respect Among Team</label>
+                    <input type="number" class="form-control" id="respectRating" min="1" max="5" required>
+                </div>
+                <div class="mb-3">
+                    <label for="inclusivityRating" class="form-label">Inclusivity</label>
+                    <input type="number" class="form-control" id="inclusivityRating" min="1" max="5" required>
+                </div>
+                <div class="mb-3">
+                    <label for="workEnvironmentRating" class="form-label">Work Environment</label>
+                    <input type="number" class="form-control" id="workEnvironmentRating" min="1" max="5" required>
+                </div>
+                <div class="mb-3">
+                    <label for="managementSupportRating" class="form-label">Management Support</label>
+                    <input type="number" class="form-control" id="managementSupportRating" min="1" max="5" required>
+                </div>
+                <div class="mb-3">
+                    <label for="learningOpportunitiesRating" class="form-label">Learning Opportunities</label>
+                    <input type="number" class="form-control" id="learningOpportunitiesRating" min="1" max="5" required>
+                </div>
+                <div class="mb-3">
+                    <label for="stressManagementRating" class="form-label">Stress Management</label>
+                    <input type="number" class="form-control" id="stressManagementRating" min="1" max="5" required>
+                </div>
+                <div class="mb-3">
+                    <label for="teamBondingRating" class="form-label">Team Bonding</label>
+                    <input type="number" class="form-control" id="teamBondingRating" min="1" max="5" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+        </form>
+
+        <!-- Section to Display Reviews -->
+        <h2>All Reviews</h2>
+        <div id="reviews" class="list-group"></div>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById('reviewForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Get form values
+            const email = document.getElementById('email').value;
+            const reviewText = document.getElementById('reviewText').value;
+            const transparencyRating = document.getElementById('transparencyRating').value;
+            const workloadRating = document.getElementById('workloadRating').value;
+            const communicationRating = document.getElementById('communicationRating').value;
+            const respectRating = document.getElementById('respectRating').value;
+            const inclusivityRating = document.getElementById('inclusivityRating').value;
+            const workEnvironmentRating = document.getElementById('workEnvironmentRating').value;
+            const managementSupportRating = document.getElementById('managementSupportRating').value;
+            const learningOpportunitiesRating = document.getElementById('learningOpportunitiesRating').value;
+            const stressManagementRating = document.getElementById('stressManagementRating').value;
+            const teamBondingRating = document.getElementById('teamBondingRating').value;
+
+            // Check if email ends with '@bmsit.in'
+            if (!email.endsWith('@bmsit.in')) {
+                document.getElementById('emailError').style.display = 'block';
+                return;
+            } else {
+                document.getElementById('emailError').style.display = 'none';
+            }
+
+            // Create a new review element
+            const reviewItem = document.createElement('div');
+            reviewItem.className = 'list-group-item mb-3';
+            reviewItem.innerHTML = `
+                <h5>${email}</h5>
+                <p>${reviewText}</p>
+                <ul>
+                    <li>Transparency: ${transparencyRating}/5</li>
+                    <li>Workload: ${workloadRating}/5</li>
+                    <li>Communication: ${communicationRating}/5</li>
+                    <li>Respect: ${respectRating}/5</li>
+                    <li>Inclusivity: ${inclusivityRating}/5</li>
+                    <li>Work Environment: ${workEnvironmentRating}/5</li>
+                    <li>Management Support: ${managementSupportRating}/5</li>
+                    <li>Learning Opportunities: ${learningOpportunitiesRating}/5</li>
+                    <li>Stress Management: ${stressManagementRating}/5</li>
+                    <li>Team Bonding: ${teamBondingRating}/5</li>
+                </ul>
+            `;
+
+            // Add the review to the reviews section
+            document.getElementById('reviews').appendChild(reviewItem);
+
+            // Clear the form
+            document.getElementById('reviewForm').reset();
+        });
+    </script>
+</body>
+</html>
