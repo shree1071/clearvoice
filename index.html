@@ -160,6 +160,8 @@ index.html:
                 "Stress Management",
                 "Team Bonding"
             ];
+
+            // Collect the ratings from the form inputs
             const reviewRatings = ratings.map(criteria => {
                 return document.getElementById(criteria.replace(" ", "").toLowerCase() + "Rating").value;
             });
@@ -175,11 +177,15 @@ index.html:
             // Create a new review element
             const reviewItem = document.createElement('div');
             reviewItem.className = 'list-group-item mb-3';
+            
+            // Construct the review content, including ratings dynamically
             reviewItem.innerHTML = `
                 <h5>${email}</h5>
                 <p>${reviewText}</p>
                 <ul>
-                    ${ratings.map((criteria, index) => <li>${criteria}: ${reviewRatings[index]}/5</li>).join('')}
+                    ${ratings.map((criteria, index) => {
+                        return `<li>${criteria}: ${reviewRatings[index]}/5</li>`;
+                    }).join('')}
                 </ul>
             `;
 
