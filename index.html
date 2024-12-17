@@ -3,343 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clear Voice - BMSIT Reviews</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            padding: 20px;
-            font-family: Arial, sans-serif;
-        }
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #1d4ed8; /* Blue color */
-        }
-        .logo span {
-            color: #0ea5e9; /* Lighter blue for accent */
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Header Section -->
-        <header class="mb-4 text-center">
-            <div class="logo">
-                Clear<span>Voice</span>
-            </div>
-            <p>Your trusted platform for honest reviews at BMSIT.</p>
-        </header>
-
-        <!-- Form to Add Reviews -->
-        <form id="reviewForm" class="mb-4">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" placeholder="Enter your BMSIT email" required>
-                <div id="emailError" class="text-danger mt-1" style="display: none;">Email must end with @bmsit.in</div>
-            </div>
-            <div class="mb-3">
-                <label for="reviewText" class="form-label">Your General Review</label>
-                <textarea class="form-control" id="reviewText" rows="3" placeholder="Write your general review here..." required></textarea>
-            </div>
-
-            <!-- Work Culture Ratings -->
-            <h4>Rate the Following Work Culture Aspects (1-5)</h4>
-            <div id="criteria">
-                <div class="mb-3">
-                    <label for="transparencyRating" class="form-label">Transparency</label>
-                    <input type="number" class="form-control" id="transparencyRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="workloadRating" class="form-label">Workload</label>
-                    <input type="number" class="form-control" id="workloadRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="communicationRating" class="form-label">Communication</label>
-                    <input type="number" class="form-control" id="communicationRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="respectRating" class="form-label">Respect Among Team</label>
-                    <input type="number" class="form-control" id="respectRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="inclusivityRating" class="form-label">Inclusivity</label>
-                    <input type="number" class="form-control" id="inclusivityRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="workEnvironmentRating" class="form-label">Work Environment</label>
-                    <input type="number" class="form-control" id="workEnvironmentRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="managementSupportRating" class="form-label">Management Support</label>
-                    <input type="number" class="form-control" id="managementSupportRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="learningOpportunitiesRating" class="form-label">Learning Opportunities</label>
-                    <input type="number" class="form-control" id="learningOpportunitiesRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="stressManagementRating" class="form-label">Stress Management</label>
-                    <input type="number" class="form-control" id="stressManagementRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="teamBondingRating" class="form-label">Team Bonding</label>
-                    <input type="number" class="form-control" id="teamBondingRating" min="1" max="5" required>
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Submit Review</button>
-        </form>
-
-        <!-- Section to Display Reviews -->
-        <h2>All Reviews</h2>
-        <div id="reviews" class="list-group"></div>
-    </div>
-
-    <script>
-        // Handle form submission
-        document.getElementById('reviewForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            // Get form values
-            const email = document.getElementById('email').value;
-            const reviewText = document.getElementById('reviewText').value;
-            const transparencyRating = document.getElementById('transparencyRating').value;
-            const workloadRating = document.getElementById('workloadRating').value;
-            const communicationRating = document.getElementById('communicationRating').value;
-            const respectRating = document.getElementById('respectRating').value;
-            const inclusivityRating = document.getElementById('inclusivityRating').value;
-            const workEnvironmentRating = document.getElementById('workEnvironmentRating').value;
-            const managementSupportRating = document.getElementById('managementSupportRating').value;
-            const learningOpportunitiesRating = document.getElementById('learningOpportunitiesRating').value;
-            const stressManagementRating = document.getElementById('stressManagementRating').value;
-            const teamBondingRating = document.getElementById('teamBondingRating').value;
-
-            // Check if email ends with '@bmsit.in'
-            if (!email.endsWith('@bmsit.in')) {
-                document.getElementById('emailError').style.display = 'block';
-                return;
-            } else {
-                document.getElementById('emailError').style.display = 'none';
-            }
-
-            // Create a new review element
-            const reviewItem = document.createElement('div');
-            reviewItem.className = 'list-group-item mb-3';
-            reviewItem.innerHTML = `
-                <h5>${email}</h5>
-                <p>${reviewText}</p>
-                <ul>
-                    <li>Transparency: ${transparencyRating}/5</li>
-                    <li>Workload: ${workloadRating}/5</li>
-                    <li>Communication: ${communicationRating}/5</li>
-                    <li>Respect: ${respectRating}/5</li>
-                    <li>Inclusivity: ${inclusivityRating}/5</li>
-                    <li>Work Environment: ${workEnvironmentRating}/5</li>
-                    <li>Management Support: ${managementSupportRating}/5</li>
-                    <li>Learning Opportunities: ${learningOpportunitiesRating}/5</li>
-                    <li>Stress Management: ${stressManagementRating}/5</li>
-                    <li>Team Bonding: ${teamBondingRating}/5</li>
-                </ul>
-            `;
-
-            // Add the review to the reviews section
-            document.getElementById('reviews').appendChild(reviewItem);
-
-            // Clear the form
-            document.getElementById('reviewForm').reset();
-        });
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clear Voice - BMSIT Reviews</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>ClearVoice - Workplace Feedback</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* General Styles */
         body {
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom, #1e3a8a, #1d4ed8); /* Blue gradient background */
-            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+            color: #333;
+            transition: background 0.5s, color 0.5s;
         }
-        
+        body.dark-mode {
+            background: linear-gradient(to bottom, #1e293b, #0f172a);
+            color: #f8fafc;
+        }
         .container {
-            background: rgba(255, 255, 255, 0.9); /* White semi-transparent background */
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 900px;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 40px auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: background 0.5s, color 0.5s;
         }
-
-        .logo {
-            font-size: 2.5rem;
+        body.dark-mode .container {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        .title {
+            font-size: 2rem;
             font-weight: bold;
-            color: #0ea5e9; /* Bright blue for the logo */
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 20px;
+        }
+        body.dark-mode .title {
+            color: #93c5fd;
         }
 
-        .logo span {
-            color: #38bdf8; /* Lighter blue for accent */
+        /* Sliders */
+        .slider-container {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .slider {
+            width: 100%;
+        }
+        .hover-text {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4f46e5;
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+            pointer-events: none;
+        }
+        body.dark-mode .hover-text {
+            background: #6366f1;
         }
 
-        label {
-            color: #1e3a8a; /* Darker blue for form labels */
-            font-weight: bold;
+        /* Description Boxes */
+        .description-box {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
         }
 
-        input, textarea {
-            background: #f1f5f9; /* Light gray background for inputs */
-            color: #1e3a8a; /* Text color for inputs */
-            border: 1px solid #0ea5e9; /* Border color */
-        }
-
-        input:focus, textarea:focus {
-            border-color: #2563eb; /* Focus border color */
-            box-shadow: 0 0 5px #60a5fa;
-        }
-
-        button {
-            background: #0ea5e9;
-            border: none;
+        /* Dark Mode Toggle */
+        .btn-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #4f46e5;
             color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
         }
-
-        button:hover {
-            background: #2563eb; /* Darker blue on hover */
-        }
-
-        .list-group-item {
-            background: #e0f2fe; /* Light blue background for reviews */
-            color: #1e3a8a;
+        .btn-toggle:hover {
+            background: #4338ca;
         }
     </style>
 </head>
 <body>
+    <!-- Dark Mode Toggle -->
+    <button class="btn-toggle" onclick="toggleMode()">🌙 Toggle Dark Mode</button>
+
+    <!-- Main Container -->
     <div class="container">
-        <!-- Header Section -->
-        <header class="mb-4 text-center">
-            <div class="logo">
-                Clear<span>Voice</span>
-            </div>
-            <p>Your trusted platform for honest reviews at BMSIT.</p>
-        </header>
+        <h1 class="title">ClearVoice - Workplace Feedback Form</h1>
+        <p class="text-center mb-4">Rate key workplace aspects and share your thoughts to help improve your work environment.</p>
 
-        <!-- Form to Add Reviews -->
-        <form id="reviewForm" class="mb-4">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" placeholder="Enter your BMSIT email" required>
-                <div id="emailError" class="text-danger mt-1" style="display: none;">Email must end with @bmsit.in</div>
-            </div>
-            <div class="mb-3">
-                <label for="reviewText" class="form-label">Your General Review</label>
-                <textarea class="form-control" id="reviewText" rows="3" placeholder="Write your general review here..." required></textarea>
+        <!-- Feedback Form -->
+        <form id="feedbackForm">
+            <!-- Work-Life Balance -->
+            <div class="slider-container">
+                <label>Work-Life Balance</label>
+                <div class="hover-text" id="balanceText">Average</div>
+                <input type="range" id="balance" class="slider form-range" min="1" max="5" value="3" oninput="updateSlider('balance', this.value)">
+                <textarea id="balanceDesc" class="form-control description-box" placeholder="Optional: Describe your experience with work-life balance..."></textarea>
             </div>
 
-            <!-- Work Culture Ratings -->
-            <h4 class="mb-3">Rate the Following Work Culture Aspects (1-5)</h4>
-            <div id="criteria">
-                <!-- Repeatable Criteria -->
-                <div class="mb-3">
-                    <label for="transparencyRating" class="form-label">Transparency</label>
-                    <input type="number" class="form-control" id="transparencyRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="workloadRating" class="form-label">Workload</label>
-                    <input type="number" class="form-control" id="workloadRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="communicationRating" class="form-label">Communication</label>
-                    <input type="number" class="form-control" id="communicationRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="respectRating" class="form-label">Respect Among Team</label>
-                    <input type="number" class="form-control" id="respectRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="inclusivityRating" class="form-label">Inclusivity</label>
-                    <input type="number" class="form-control" id="inclusivityRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="workEnvironmentRating" class="form-label">Work Environment</label>
-                    <input type="number" class="form-control" id="workEnvironmentRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="managementSupportRating" class="form-label">Management Support</label>
-                    <input type="number" class="form-control" id="managementSupportRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="learningOpportunitiesRating" class="form-label">Learning Opportunities</label>
-                    <input type="number" class="form-control" id="learningOpportunitiesRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="stressManagementRating" class="form-label">Stress Management</label>
-                    <input type="number" class="form-control" id="stressManagementRating" min="1" max="5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="teamBondingRating" class="form-label">Team Bonding</label>
-                    <input type="number" class="form-control" id="teamBondingRating" min="1" max="5" required>
-                </div>
+            <!-- Management Support -->
+            <div class="slider-container">
+                <label>Management Support</label>
+                <div class="hover-text" id="managementText">Average</div>
+                <input type="range" id="management" class="slider form-range" min="1" max="5" value="3" oninput="updateSlider('management', this.value)">
+                <textarea id="managementDesc" class="form-control description-box" placeholder="Optional: Describe your experience with management support..."></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary">Submit Review</button>
+            <!-- Peer Collaboration -->
+            <div class="slider-container">
+                <label>Peer Collaboration</label>
+                <div class="hover-text" id="collaborationText">Average</div>
+                <input type="range" id="collaboration" class="slider form-range" min="1" max="5" value="3" oninput="updateSlider('collaboration', this.value)">
+                <textarea id="collaborationDesc" class="form-control description-box" placeholder="Optional: Describe your experience with peer collaboration..."></textarea>
+            </div>
+
+            <!-- Career Growth -->
+            <div class="slider-container">
+                <label>Career Growth Opportunities</label>
+                <div class="hover-text" id="growthText">Average</div>
+                <input type="range" id="growth" class="slider form-range" min="1" max="5" value="3" oninput="updateSlider('growth', this.value)">
+                <textarea id="growthDesc" class="form-control description-box" placeholder="Optional: Describe your experience with career growth opportunities..."></textarea>
+            </div>
+
+            <!-- Workplace Transparency -->
+            <div class="slider-container">
+                <label>Workplace Transparency</label>
+                <div class="hover-text" id="transparencyText">Average</div>
+                <input type="range" id="transparency" class="slider form-range" min="1" max="5" value="3" oninput="updateSlider('transparency', this.value)">
+                <textarea id="transparencyDesc" class="form-control description-box" placeholder="Optional: Describe your experience with workplace transparency..."></textarea>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-100 mt-3">Submit Feedback</button>
         </form>
-
-        <!-- Section to Display Reviews -->
-        <h2 class="text-primary">All Reviews</h2>
-        <div id="reviews" class="list-group"></div>
     </div>
 
+    <!-- JavaScript -->
     <script>
-        // Handle form submission
-        document.getElementById('reviewForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+        // Toggle Dark Mode
+        function toggleMode() {
+            document.body.classList.toggle("dark-mode");
+        }
 
-            // Get form values
-            const email = document.getElementById('email').value;
-            const reviewText = document.getElementById('reviewText').value;
-            const ratings = [
-                "Transparency",
-                "Workload",
-                "Communication",
-                "Respect",
-                "Inclusivity",
-                "Work Environment",
-                "Management Support",
-                "Learning Opportunities",
-                "Stress Management",
-                "Team Bonding"
-            ];
-            const reviewRatings = ratings.map(criteria => {
-                return document.getElementById(criteria.replace(" ", "").toLowerCase() + "Rating").value;
-            });
+        // Update Slider Text and Color
+        function updateSlider(id, value) {
+            const textElement = document.getElementById(id + "Text");
+            const messages = ["Poor", "Below Average", "Average", "Good", "Excellent"];
+            const colors = ["#f87171", "#facc15", "#60a5fa", "#4ade80", "#22c55e"];
 
-            // Email validation
-            if (!email.endsWith('@bmsit.in')) {
-                document.getElementById('emailError').style.display = 'block';
-                return;
-            } else {
-                document.getElementById('emailError').style.display = 'none';
-            }
+            textElement.textContent = messages[value - 1];
+            textElement.style.backgroundColor = colors[value - 1];
+        }
 
-            // Create a new review element
-            const reviewItem = document.createElement('div');
-            reviewItem.className = 'list-group-item mb-3';
-            reviewItem.innerHTML = `
-                <h5>${email}</h5>
-                <p>${reviewText}</p>
-                <ul>
-                    ${ratings.map((criteria, index) => <li>${criteria}: ${reviewRatings[index]}/5</li>).join('')}
-                </ul>
-            `;
+        // Submit Feedback
+        document.getElementById("feedbackForm").addEventListener("submit", (e) => {
+            e.preventDefault();
 
-            // Add the review to the reviews section
-            document.getElementById('reviews').appendChild(reviewItem);
+            const feedbackData = {
+                balance: { rating: document.getElementById("balance").value, description: document.getElementById("balanceDesc").value },
+                management: { rating: document.getElementById("management").value, description: document.getElementById("managementDesc").value },
+                collaboration: { rating: document.getElementById("collaboration").value, description: document.getElementById("collaborationDesc").value },
+                growth: { rating: document.getElementById("growth").value, description: document.getElementById("growthDesc").value },
+                transparency: { rating: document.getElementById("transparency").value, description: document.getElementById("transparencyDesc").value }
+            };
 
-            // Clear the form
-            document.getElementById('reviewForm').reset();
+            localStorage.setItem("feedbackData", JSON.stringify(feedbackData));
+            window.location.href = "result.html";
         });
     </script>
 </body>
