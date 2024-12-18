@@ -20,114 +20,187 @@
             margin: 30px auto;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
-        .title {
-            font-size: 2rem;
-            font-weight: bold;
-            text-align: center;
+        h1, h3 {
             color: #4f46e5;
         }
-        .summary-box {
-            background-color: #e0f2fe;
-            border-left: 5px solid #0284c7;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-        .insight-box {
+        .summary-box, .insight-box, .improvement-box {
             margin-top: 20px;
             padding: 15px;
-            background-color: #f1f5f9;
             border-radius: 8px;
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+        }
+        .category-review {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: #f9fafb;
         }
         .chart-container {
             margin-top: 20px;
+        }
+        .feedback-box {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background-color: #e2e8f0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="title">ClearVoice - Workplace Feedback Report</h1>
+        <!-- Title -->
+        <h1 class="text-center">ClearVoice - Workplace Feedback Report</h1>
 
-        <!-- Summary -->
-        <div class="summary-box" id="summaryText"></div>
-
-        <!-- AI-Driven Insights -->
-        <h3 class="mt-4 mb-3">AI-Driven Insights</h3>
-        <div class="insight-box" id="insightBox">Analyzing workplace feedback...</div>
+        <!-- Summary and AI Analysis -->
+        <div class="summary-box">
+            <h3>Overall Rating</h3>
+            <p id="summaryText"></p>
+        </div>
+        <div class="insight-box">
+            <h3>AI-Driven Insights</h3>
+            <p id="insightBox"></p>
+        </div>
 
         <!-- Bar Chart -->
-        <h3 class="mt-4">Feedback Distribution</h3>
-        <canvas id="barChart"></canvas>
+        <div class="chart-container">
+            <h3>Category Ratings</h3>
+            <canvas id="barChart"></canvas>
+        </div>
 
-        <!-- Radar Chart -->
-        <h3 class="mt-4">Category Ratings Overview</h3>
-        <canvas id="radarChart"></canvas>
+        <!-- User Reviews -->
+        <h3 class="mt-4">Your Feedback</h3>
+        <div id="detailedReviews"></div>
 
-        <!-- Pie Chart -->
-        <h3 class="mt-4">Rating Proportions</h3>
-        <canvas id="pieChart"></canvas>
+        <!-- Improvement Suggestions -->
+        <h3 class="mt-4">Recommendations for Improvement</h3>
+        <div class="improvement-box" id="improvementBox"></div>
+
+        <!-- Charts -->
+        <div class="chart-container">
+            <h3>Ratings Overview</h3>
+            <canvas id="radarChart"></canvas>
+            <canvas id="pieChart" class="mt-4"></canvas>
+        </div>
+
+        <!-- My Feedback -->
+        <div class="feedback-box">
+            <h3>Expert Feedback</h3>
+            <p>
+                Based on the provided feedback and analysis, the following observations are made:
+            </p>
+            <ul>
+                <li>
+                    The strongest category, <strong id="strongestCategory"></strong>, reflects excellent performance, indicating this area can serve as a model for other categories.
+                </li>
+                <li>
+                    The weakest category, <strong id="weakestCategory"></strong>, requires immediate attention. Focus on addressing specific issues mentioned in the user’s feedback to improve this area.
+                </li>
+                <li>
+                    Low ratings in multiple categories suggest the need for targeted workshops, leadership training, or communication improvements to foster better engagement and satisfaction.
+                </li>
+            </ul>
+            <p>
+                Overall, the feedback form is well-structured, allowing for both quantitative and qualitative inputs. Future iterations could incorporate:
+            </p>
+            <ul>
+                <li>
+                    Follow-up actions or surveys to track improvements over time.
+                </li>
+                <li>
+                    Integration of peer comparisons to benchmark performance against industry standards.
+                </li>
+                <li>
+                    Enhanced visualization options to better identify trends in feedback data.
+                </li>
+            </ul>
+            <p>
+                ClearVoice demonstrates a commitment to improving workplace satisfaction. The insights gained here should guide meaningful actions to address areas of concern.
+            </p>
+        </div>
     </div>
 
     <script>
         // Fetch Feedback Data
         const feedbackData = JSON.parse(localStorage.getItem("feedbackData")) || {};
-        const labels = ["Work-Life Balance", "Management Support", "Peer Collaboration", "Career Growth", "Transparency"];
+        const categories = ["Work-Life Balance", "Management Support", "Peer Collaboration", "Career Growth", "Transparency"];
         const scores = [
-            parseInt(feedbackData.balance.rating),
-            parseInt(feedbackData.management.rating),
-            parseInt(feedbackData.collaboration.rating),
-            parseInt(feedbackData.growth.rating),
-            parseInt(feedbackData.transparency.rating)
+            parseInt(feedbackData.balance?.rating) || 0,
+            parseInt(feedbackData.management?.rating) || 0,
+            parseInt(feedbackData.collaboration?.rating) || 0,
+            parseInt(feedbackData.growth?.rating) || 0,
+            parseInt(feedbackData.transparency?.rating) || 0
+        ];
+        const reviews = [
+            feedbackData.balance?.description || "No feedback provided.",
+            feedbackData.management?.description || "No feedback provided.",
+            feedbackData.collaboration?.description || "No feedback provided.",
+            feedbackData.growth?.description || "No feedback provided.",
+            feedbackData.transparency?.description || "No feedback provided."
         ];
 
-        // Update Summary
+        // Calculate Summary
         const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
-        const summaryText = document.getElementById("summaryText");
-        summaryText.innerHTML = avgScore >= 4
-            ? "<strong>Great!</strong> Your workplace is performing well, but focus on minor improvements."
-            : avgScore >= 3
-            ? "<strong>Moderate.</strong> There are areas that require attention to enhance the workplace."
-            : "<strong>Critical!</strong> Immediate actions are needed to improve workplace culture.";
-
-        // AI-Driven Insights
-        const insightBox = document.getElementById("insightBox");
-        insightBox.innerHTML = `
-            <ul>
-                <li>High performance in ${labels[scores.indexOf(Math.max(...scores))]}.</li>
-                <li>Focus improvement on ${labels[scores.indexOf(Math.min(...scores))]}.</li>
-                <li>Overall average rating: ${avgScore.toFixed(2)}.</li>
-            </ul>
+        document.getElementById("summaryText").innerHTML = `
+            <strong>Average Score:</strong> ${avgScore.toFixed(2)}<br>
+            ${avgScore >= 4 ? "Your workplace is performing well overall!" :
+                avgScore >= 3 ? "Your workplace has moderate performance with room for improvement." :
+                "Your workplace needs immediate improvement in key areas."}
         `;
 
-        // Count Rating Categories
-        const categories = {
-            poor: scores.filter(score => score === 1).length,
-            belowAverage: scores.filter(score => score === 2).length,
-            average: scores.filter(score => score === 3).length,
-            good: scores.filter(score => score === 4).length,
-            excellent: scores.filter(score => score === 5).length
-        };
+        // AI Insights
+        const strongestCategory = categories[scores.indexOf(Math.max(...scores))];
+        const weakestCategory = categories[scores.indexOf(Math.min(...scores))];
+        document.getElementById("insightBox").innerHTML = `
+            The strongest area is <strong>${strongestCategory}</strong>.<br>
+            The weakest area is <strong>${weakestCategory}</strong>.<br>
+            Focus on improving low-rated categories to boost overall satisfaction.
+        `;
+        document.getElementById("strongestCategory").textContent = strongestCategory;
+        document.getElementById("weakestCategory").textContent = weakestCategory;
+
+        // User Feedback
+        const detailedReviews = document.getElementById("detailedReviews");
+        detailedReviews.innerHTML = categories.map((cat, i) => `
+            <div class="category-review">
+                <h5>${cat}</h5>
+                <p><strong>Rating:</strong> ${scores[i]}</p>
+                <p><strong>Feedback:</strong> ${reviews[i]}</p>
+            </div>
+        `).join("");
+
+        // Improvement Suggestions
+        const improvementBox = document.getElementById("improvementBox");
+        improvementBox.innerHTML = categories.map((cat, i) => {
+            if (scores[i] >= 4) return `<p><strong>${cat}:</strong> No improvements needed. Great work!</p>`;
+            return `
+                <div class="category-review">
+                    <h5>${cat}</h5>
+                    <ul>
+                        <li>Identify challenges by conducting focused surveys.</li>
+                        <li>Implement team workshops to address concerns.</li>
+                        <li>Increase communication and transparency in this area.</li>
+                    </ul>
+                </div>
+            `;
+        }).join("");
 
         // Bar Chart
         const barCtx = document.getElementById("barChart").getContext("2d");
         new Chart(barCtx, {
             type: "bar",
             data: {
-                labels: labels,
+                labels: categories,
                 datasets: [{
-                    label: "Rating (1-5)",
+                    label: "Ratings",
                     data: scores,
                     backgroundColor: ["#22c55e", "#4ade80", "#facc15", "#f87171", "#60a5fa"]
                 }]
             },
             options: {
                 responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: "Feedback Distribution"
-                    }
-                },
                 scales: {
                     y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } }
                 }
@@ -139,34 +212,18 @@
         new Chart(radarCtx, {
             type: "radar",
             data: {
-                labels: labels,
+                labels: categories,
                 datasets: [{
-                    label: "Category Ratings",
+                    label: "Ratings Overview",
                     data: scores,
                     fill: true,
                     backgroundColor: "rgba(72, 187, 120, 0.2)",
-                    borderColor: "#48bb78",
-                    pointBackgroundColor: "#48bb78",
-                    pointBorderColor: "#fff",
-                    pointHoverBackgroundColor: "#fff",
-                    pointHoverBorderColor: "#48bb78"
+                    borderColor: "#48bb78"
                 }]
             },
             options: {
                 responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: "Ratings Across Categories"
-                    }
-                },
-                scales: {
-                    r: {
-                        suggestedMin: 0,
-                        suggestedMax: 5,
-                        ticks: { stepSize: 1 }
-                    }
-                }
+                scales: { r: { suggestedMin: 0, suggestedMax: 5 } }
             }
         });
 
@@ -177,27 +234,11 @@
             data: {
                 labels: ["Poor", "Below Average", "Average", "Good", "Excellent"],
                 datasets: [{
-                    data: [
-                        categories.poor,
-                        categories.belowAverage,
-                        categories.average,
-                        categories.good,
-                        categories.excellent
-                    ],
+                    data: [1, 2, 3, 4, 5].map(r => scores.filter(s => s === r).length),
                     backgroundColor: ["#f87171", "#facc15", "#60a5fa", "#4ade80", "#22c55e"]
                 }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: "Rating Proportions"
-                    }
-                }
             }
         });
     </script>
 </body>
 </html>
-
