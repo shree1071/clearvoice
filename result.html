@@ -13,6 +13,11 @@
             color: #333;
             margin: 0;
             padding: 0;
+            transition: background 0.5s, color 0.5s;
+        }
+        body.dark-mode {
+            background: linear-gradient(to bottom, #1e293b, #0f172a);
+            color: #f8fafc;
         }
         .container {
             max-width: 1000px;
@@ -21,9 +26,47 @@
             padding: 30px;
             margin: 30px auto;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: background 0.5s, color 0.5s;
+        }
+        body.dark-mode .container {
+            background: #334155;
         }
         h1, h3 {
             color: #4f46e5;
+        }
+        body.dark-mode h1, body.dark-mode h3 {
+            color: #93c5fd;
+        }
+        .navbar {
+            background-color: #4f46e5;
+        }
+        .navbar .navbar-brand, .navbar .nav-link {
+            color: white;
+            transition: color 0.3s;
+        }
+        .navbar .nav-link:hover {
+            color: #d1d5db;
+        }
+        .btn-toggle, .btn-reset {
+            position: fixed;
+            right: 10px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .btn-reset {
+            top: 60px;
+            background: #e11d48;
+        }
+        .btn-toggle:hover {
+            background: #4338ca;
+        }
+        .btn-reset:hover {
+            background: #be123c;
         }
         .box {
             padding: 20px;
@@ -40,11 +83,7 @@
             background-color: #fef9c3;
             border-left: 4px solid #facc15;
         }
-        .chart-container {
-            margin-top: 30px;
-        }
         .calculator {
-            margin-top: 30px;
             padding: 20px;
             border: 1px solid #d1d5db;
             border-radius: 10px;
@@ -53,29 +92,52 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">ClearVoice</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#summary">Summary</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#insights">Insights</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#recommendations">Recommendations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#charts">Charts</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <button class="btn-toggle" onclick="toggleMode()">🌙 Toggle Dark Mode</button>
+    <button class="btn-reset" onclick="resetPage()">🔄 Reset</button>
+
     <div class="container">
-        <!-- Title -->
         <h1 class="text-center">ClearVoice - Workplace Feedback Report</h1>
 
-        <!-- Overall Summary -->
-        <div class="box">
+        <div id="summary" class="box">
             <h3>Overall Feedback Summary</h3>
             <p id="summaryText"></p>
         </div>
 
-        <!-- AI Insights -->
-        <div class="box insights-box">
+        <div id="insights" class="box insights-box">
             <h3>AI-Driven Insights</h3>
             <p id="aiInsights"></p>
         </div>
 
-        <!-- Recommendations -->
-        <div class="box recommendations-box">
+        <div id="recommendations" class="box recommendations-box">
             <h3>Expert Recommendations</h3>
             <p id="expertRecommendations"></p>
         </div>
 
-        <!-- Rating Calculator -->
         <div class="calculator">
             <h3>Rating Calculator</h3>
             <p><strong>Total Score:</strong> <span id="totalScore"></span></p>
@@ -84,19 +146,16 @@
             <ul id="categoryBreakdown"></ul>
         </div>
 
-        <!-- Bar Chart -->
-        <div class="chart-container">
+        <div id="charts" class="chart-container">
             <h3>Category Ratings</h3>
             <canvas id="barChart"></canvas>
         </div>
 
-        <!-- Radar Chart -->
         <div class="chart-container">
             <h3>Performance Overview</h3>
             <canvas id="radarChart"></canvas>
         </div>
 
-        <!-- Pie Chart -->
         <div class="chart-container">
             <h3>Ratings Distribution</h3>
             <canvas id="pieChart"></canvas>
@@ -104,7 +163,15 @@
     </div>
 
     <script>
-        // Example Feedback Data
+        function toggleMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        function resetPage() {
+            localStorage.clear();
+            location.reload();
+        }
+
         const feedbackData = {
             balance: { rating: 3, description: "Workload needs better distribution." },
             management: { rating: 4, description: "Managers are approachable but need better time management." },
@@ -116,11 +183,9 @@
         const categories = ["Work-Life Balance", "Management Support", "Peer Collaboration", "Career Growth", "Transparency"];
         const scores = Object.values(feedbackData).map(item => item.rating);
 
-        // Calculate Total Score and Average
         const totalScore = scores.reduce((a, b) => a + b, 0);
         const averageRating = totalScore / scores.length;
 
-        // Update Rating Calculator
         document.getElementById("totalScore").textContent = totalScore;
         document.getElementById("averageRating").textContent = averageRating.toFixed(2);
         document.getElementById("categoryBreakdown").innerHTML = categories.map((cat, i) => {
@@ -128,86 +193,50 @@
             return `<li><strong>${cat}:</strong> ${scores[i]} (${percentage}%)</li>`;
         }).join("");
 
-        // Overall Summary
-        const summaryText = averageRating >= 4
+        document.getElementById("summaryText").innerText = averageRating >= 4
             ? "The workplace is performing well overall! Keep maintaining these strengths while addressing minor areas for improvement."
             : averageRating >= 3
             ? "The workplace has a moderate performance with key areas for improvement. Address specific concerns to boost overall satisfaction."
             : "The workplace requires immediate attention in several key areas. Focus on transparency, support, and collaboration.";
-        document.getElementById("summaryText").innerText = summaryText;
 
-        // AI Insights
         const insights = categories.map((cat, index) => {
             const score = scores[index];
-            if (score <= 2) {
-                return `<strong>${cat}:</strong> This area requires urgent attention. Employees have expressed dissatisfaction. Immediate steps are needed.`;
-            } else if (score === 3) {
-                return `<strong>${cat}:</strong> This area is moderately performing. Improvements will significantly boost satisfaction.`;
-            } else {
-                return `<strong>${cat}:</strong> Performing well. Maintain current policies to sustain success.`;
-            }
+            return `<strong>${cat}:</strong> ${score <= 2
+                ? "Requires urgent attention."
+                : score === 3
+                ? "Moderately performing."
+                : "Performing well."}`;
         }).join("<br>");
         document.getElementById("aiInsights").innerHTML = insights;
 
-        // Expert Recommendations
-        const recommendations = `
+        document.getElementById("expertRecommendations").innerHTML = `
             <ul>
-                <li>Prioritize regular one-on-one feedback sessions for team members.</li>
-                <li>Establish structured growth plans and mentorship programs.</li>
-                <li>Use collaboration tools like Slack or Microsoft Teams to enhance communication.</li>
-                <li>Celebrate successes to reinforce positive behaviors.</li>
+                <li>Regular feedback sessions.</li>
+                <li>Structured mentorship programs.</li>
+                <li>Enhanced collaboration tools.</li>
+                <li>Celebrate team successes.</li>
             </ul>
         `;
-        document.getElementById("expertRecommendations").innerHTML = recommendations;
 
-        // Bar Chart
-        const barCtx = document.getElementById("barChart").getContext("2d");
-        new Chart(barCtx, {
+        new Chart(document.getElementById("barChart").getContext("2d"), {
             type: "bar",
             data: {
                 labels: categories,
-                datasets: [{
-                    label: "Ratings",
-                    data: scores,
-                    backgroundColor: ["#60a5fa", "#4ade80", "#f87171", "#22c55e", "#facc15"]
-                }]
+                datasets: [{ label: "Ratings", data: scores, backgroundColor: ["#60a5fa", "#4ade80", "#f87171", "#22c55e", "#facc15"] }]
             },
-            options: {
-                responsive: true,
-                scales: { y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } } }
-            }
+            options: { scales: { y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } } } }
         });
 
-        // Radar Chart
-        const radarCtx = document.getElementById("radarChart").getContext("2d");
-        new Chart(radarCtx, {
+        new Chart(document.getElementById("radarChart").getContext("2d"), {
             type: "radar",
-            data: {
-                labels: categories,
-                datasets: [{
-                    label: "Ratings Overview",
-                    data: scores,
-                    fill: true,
-                    backgroundColor: "rgba(72, 187, 120, 0.2)",
-                    borderColor: "#48bb78"
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: { r: { suggestedMin: 0, suggestedMax: 5 } }
-            }
+            data: { labels: categories, datasets: [{ label: "Ratings Overview", data: scores, backgroundColor: "rgba(72, 187, 120, 0.2)" }] }
         });
 
-        // Pie Chart
-        const pieCtx = document.getElementById("pieChart").getContext("2d");
-        new Chart(pieCtx, {
+        new Chart(document.getElementById("pieChart").getContext("2d"), {
             type: "pie",
             data: {
                 labels: ["Poor", "Below Average", "Average", "Good", "Excellent"],
-                datasets: [{
-                    data: [1, 2, 3, 4, 5].map(r => scores.filter(s => s === r).length),
-                    backgroundColor: ["#f87171", "#facc15", "#60a5fa", "#4ade80", "#22c55e"]
-                }]
+                datasets: [{ data: [1, 2, 3, 4, 5].map(r => scores.filter(s => s === r).length), backgroundColor: ["#f87171", "#facc15", "#60a5fa", "#4ade80", "#22c55e"] }]
             }
         });
     </script>
