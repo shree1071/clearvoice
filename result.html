@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClearVoice - Results</title>
@@ -11,8 +15,6 @@
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
             color: #333;
-            margin: 0;
-            padding: 0;
         }
         .container {
             max-width: 1000px;
@@ -40,43 +42,31 @@
             background-color: #fef9c3;
             border-left: 4px solid #facc15;
         }
+        .urgent-notice {
+            padding: 20px;
+            background-color: #f87171;
+            color: white;
+            font-weight: bold;
+            border-radius: 10px;
+        }
         .chart-container {
             margin-top: 30px;
-        }
-        .calculator {
-            margin-top: 30px;
-            padding: 20px;
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
-            background-color: #e2f5fc;
+            position: relative;
+            height: 500px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Title -->
+        <button id="downloadPdfButton" class="btn btn-success">Download Report as PDF</button>
+
         <h1 class="text-center">ClearVoice - Workplace Feedback Report</h1>
 
-        <!-- Overall Summary -->
-        <div class="box">
-            <h3>Overall Feedback Summary</h3>
-            <p id="summaryText"></p>
+        <div id="urgentNotice" class="urgent-notice" style="display: none;">
+            <p>Urgent: Immediate action required in key areas of the workplace that are currently underperforming.</p>
         </div>
-
-        <!-- AI Insights -->
-        <div class="box insights-box">
-            <h3>AI-Driven Insights</h3>
-            <p id="aiInsights"></p>
-        </div>
-
-        <!-- Recommendations -->
-        <div class="box recommendations-box">
-            <h3>Expert Recommendations</h3>
-            <p id="expertRecommendations"></p>
-        </div>
-
-        <!-- Rating Calculator -->
-        <div class="calculator">
+          <!-- Rating Calculator -->
+          <div class="calculator">
             <h3>Rating Calculator</h3>
             <p><strong>Total Score:</strong> <span id="totalScore"></span></p>
             <p><strong>Average Rating:</strong> <span id="averageRating"></span></p>
@@ -84,19 +74,33 @@
             <ul id="categoryBreakdown"></ul>
         </div>
 
-        <!-- Bar Chart -->
+        
+
+        <div class="box">
+            <h3>Overall Feedback Summary</h3>
+            <p id="summaryText"></p>
+        </div>
+
+        <div class="box insights-box">
+            <h3>AI-Driven Insights</h3>
+            <p id="aiInsights"></p>
+        </div>
+
+        <div class="box recommendations-box">
+            <h3>Expert Recommendations</h3>
+            <p id="expertRecommendations"></p>
+        </div>
+
         <div class="chart-container">
             <h3>Category Ratings</h3>
             <canvas id="barChart"></canvas>
         </div>
 
-        <!-- Radar Chart -->
         <div class="chart-container">
             <h3>Performance Overview</h3>
             <canvas id="radarChart"></canvas>
         </div>
 
-        <!-- Pie Chart -->
         <div class="chart-container">
             <h3>Ratings Distribution</h3>
             <canvas id="pieChart"></canvas>
@@ -104,63 +108,128 @@
     </div>
 
     <script>
-        // Example Feedback Data
-        const feedbackData = {
-            balance: { rating: 3, description: "Workload needs better distribution." },
-            management: { rating: 4, description: "Managers are approachable but need better time management." },
-            collaboration: { rating: 2, description: "Team collaboration is poor due to lack of trust." },
-            growth: { rating: 5, description: "Great growth opportunities and mentorship programs." },
-            transparency: { rating: 4, description: "Communication from leadership is clear but can improve." }
-        };
+        // Assuming feedbackData is loaded from localStorage
+        const feedbackData = JSON.parse(localStorage.getItem("feedbackData"));
 
         const categories = ["Work-Life Balance", "Management Support", "Peer Collaboration", "Career Growth", "Transparency"];
         const scores = Object.values(feedbackData).map(item => item.rating);
 
-        // Calculate Total Score and Average
         const totalScore = scores.reduce((a, b) => a + b, 0);
         const averageRating = totalScore / scores.length;
 
-        // Update Rating Calculator
-        document.getElementById("totalScore").textContent = totalScore;
-        document.getElementById("averageRating").textContent = averageRating.toFixed(2);
-        document.getElementById("categoryBreakdown").innerHTML = categories.map((cat, i) => {
-            const percentage = ((scores[i] / 5) * 100).toFixed(1);
-            return `<li><strong>${cat}:</strong> ${scores[i]} (${percentage}%)</li>`;
+        // Update Summary Text
+        document.getElementById("summaryText").innerText = averageRating >= 4 ? 
+            "The workplace is performing well overall." : 
+            averageRating >= 3 ? 
+            "The workplace has a moderate performance." : 
+            "Immediate attention is required in key areas.";
+
+        // Urgent Notice if any rating is "Poor" (1)
+        if (scores.some(score => score === 1)) {
+            document.getElementById("urgentNotice").style.display = "block";
+        }
+
+        // AI Insights based on categories
+        document.getElementById("aiInsights").innerHTML = categories.map((cat, index) => {
+            const rating = scores[index];
+            let insight = `${cat}: ${rating > 3 ? "Good" : "Needs Improvement"}`;
+            if (rating === 1) {
+                insight += " (Urgent attention needed!)";
+            }
+            if (cat === "Work-Life Balance" && rating <= 3) {
+                insight += " - Encourage flexible scheduling options to improve satisfaction.";
+            } else if (cat === "Management Support" && rating <= 3) {
+                insight += " - Ensure managers are approachable and provide regular feedback.";
+            } else if (cat === "Peer Collaboration" && rating <= 3) {
+                insight += " - Foster team-building activities to strengthen peer relationships.";
+            } else if (cat === "Career Growth" && rating <= 3) {
+                insight += " - Provide clear development pathways and mentorship programs.";
+            } else if (cat === "Transparency" && rating <= 3) {
+                insight += " - Improve communication on company policies and decisions.";
+            }
+            return `<strong>${insight}</strong>`;
+        }).join("<br>");
+
+        // Enhanced Expert Recommendations with distinct points for each category and rank
+        document.getElementById("expertRecommendations").innerHTML = categories.map((cat, index) => {
+            const rating = scores[index];
+            let recommendations = `<strong>${cat}:</strong><ul>`;
+            if (rating === 1) {
+                recommendations += `<li>Conduct urgent feedback sessions to understand the core issues in ${cat}.</li>`;
+                if (cat === "Work-Life Balance") {
+                    recommendations += `<li>Introduce emergency policies like reduced hours or extra leave.</li>`;
+                    recommendations += `<li>Consult mental health professionals for employee assistance.</li>`;
+                } else if (cat === "Management Support") {
+                    recommendations += `<li>Assign interim leaders where support gaps are critical.</li>`;
+                    recommendations += `<li>Organize anonymous feedback forums directly for management.</li>`;
+                } else if (cat === "Peer Collaboration") {
+                    recommendations += `<li>Organize immediate team-building workshops.</li>`;
+                    recommendations += `<li>Redesign workflows to require collaborative checkpoints.</li>`;
+                } else if (cat === "Career Growth") {
+                    recommendations += `<li>Launch emergency upskilling programs.</li>`;
+                    recommendations += `<li>Collaborate with external consultants for career mapping.</li>`;
+                } else if (cat === "Transparency") {
+                    recommendations += `<li>Publish weekly reports addressing employee concerns.</li>`;
+                    recommendations += `<li>Hold emergency all-hands meetings to rebuild trust.</li>`;
+                }
+            } else if (rating === 2) {
+                recommendations += `<li>Survey employees to identify specific gaps in ${cat} and prioritize changes.</li>`;
+                if (cat === "Work-Life Balance") {
+                    recommendations += `<li>Evaluate workload distribution to prevent burnout.</li>`;
+                } else if (cat === "Management Support") {
+                    recommendations += `<li>Increase one-on-one sessions between employees and managers.</li>`;
+                } else if (cat === "Peer Collaboration") {
+                    recommendations += `<li>Initiate peer mentoring programs to improve connections.</li>`;
+                } else if (cat === "Career Growth") {
+                    recommendations += `<li>Improve clarity on promotion and growth criteria.</li>`;
+                } else if (cat === "Transparency") {
+                    recommendations += `<li>Conduct focus groups to clarify employee doubts.</li>`;
+                }
+            } else if (rating === 3) {
+                recommendations += `<li>Examine past initiatives in ${cat} to understand the moderate outcomes.</li>`;
+                if (cat === "Work-Life Balance") {
+                    recommendations += `<li>Explore hybrid work models and weekend-free schedules.</li>`;
+                } else if (cat === "Management Support") {
+                    recommendations += `<li>Establish mentor-mentee programs for mutual feedback.</li>`;
+                } else if (cat === "Peer Collaboration") {
+                    recommendations += `<li>Evaluate communication platforms for team efficiency.</li>`;
+                } else if (cat === "Career Growth") {
+                    recommendations += `<li>Assign career coaches to employees looking for growth.</li>`;
+                } else if (cat === "Transparency") {
+                    recommendations += `<li>Introduce detailed quarterly reviews with Q&A sessions.</li>`;
+                }
+            } else if (rating === 4) {
+                recommendations += `<li>Recognize and reward successful efforts in ${cat} to maintain performance.</li>`;
+                if (cat === "Work-Life Balance") {
+                    recommendations += `<li>Enhance remote working options.</li>`;
+                } else if (cat === "Management Support") {
+                    recommendations += `<li>Offer advanced training for conflict resolution.</li>`;
+                } else if (cat === "Peer Collaboration") {
+                    recommendations += `<li>Leverage successful teams for collaboration training.</li>`;
+                } else if (cat === "Career Growth") {
+                    recommendations += `<li>Broaden mentorship programs with external professionals.</li>`;
+                } else if (cat === "Transparency") {
+                    recommendations += `<li>Expand the use of accessible digital platforms for communication.</li>`;
+                }
+            } else {
+                recommendations += `<li>Document ${cat} strategies as best practices for company-wide adoption.</li>`;
+                if (cat === "Work-Life Balance") {
+                    recommendations += `<li>Celebrate milestones related to work-life improvements.</li>`;
+                } else if (cat === "Management Support") {
+                    recommendations += `<li>Involve top-performing managers in new project strategies.</li>`;
+                } else if (cat === "Peer Collaboration") {
+                    recommendations += `<li>Expand collaborative initiatives to external partnerships.</li>`;
+                } else if (cat === "Career Growth") {
+                    recommendations += `<li>Benchmark growth initiatives against industry standards.</li>`;
+                } else if (cat === "Transparency") {
+                    recommendations += `<li>Make transparency a core value in public company reports.</li>`;
+                }
+            }
+            recommendations += "</ul>";
+            return recommendations;
         }).join("");
 
-        // Overall Summary
-        const summaryText = averageRating >= 4
-            ? "The workplace is performing well overall! Keep maintaining these strengths while addressing minor areas for improvement."
-            : averageRating >= 3
-            ? "The workplace has a moderate performance with key areas for improvement. Address specific concerns to boost overall satisfaction."
-            : "The workplace requires immediate attention in several key areas. Focus on transparency, support, and collaboration.";
-        document.getElementById("summaryText").innerText = summaryText;
-
-        // AI Insights
-        const insights = categories.map((cat, index) => {
-            const score = scores[index];
-            if (score <= 2) {
-                return `<strong>${cat}:</strong> This area requires urgent attention. Employees have expressed dissatisfaction. Immediate steps are needed.`;
-            } else if (score === 3) {
-                return `<strong>${cat}:</strong> This area is moderately performing. Improvements will significantly boost satisfaction.`;
-            } else {
-                return `<strong>${cat}:</strong> Performing well. Maintain current policies to sustain success.`;
-            }
-        }).join("<br>");
-        document.getElementById("aiInsights").innerHTML = insights;
-
-        // Expert Recommendations
-        const recommendations = `
-            <ul>
-                <li>Prioritize regular one-on-one feedback sessions for team members.</li>
-                <li>Establish structured growth plans and mentorship programs.</li>
-                <li>Use collaboration tools like Slack or Microsoft Teams to enhance communication.</li>
-                <li>Celebrate successes to reinforce positive behaviors.</li>
-            </ul>
-        `;
-        document.getElementById("expertRecommendations").innerHTML = recommendations;
-
-        // Bar Chart
+        // Create Bar Chart
         const barCtx = document.getElementById("barChart").getContext("2d");
         new Chart(barCtx, {
             type: "bar",
@@ -178,7 +247,7 @@
             }
         });
 
-        // Radar Chart
+        // Create Radar Chart
         const radarCtx = document.getElementById("radarChart").getContext("2d");
         new Chart(radarCtx, {
             type: "radar",
@@ -198,18 +267,116 @@
             }
         });
 
-        // Pie Chart
+        // Create Pie Chart
         const pieCtx = document.getElementById("pieChart").getContext("2d");
         new Chart(pieCtx, {
             type: "pie",
             data: {
-                labels: ["Poor", "Below Average", "Average", "Good", "Excellent"],
+                labels: categories,
                 datasets: [{
-                    data: [1, 2, 3, 4, 5].map(r => scores.filter(s => s === r).length),
-                    backgroundColor: ["#f87171", "#facc15", "#60a5fa", "#4ade80", "#22c55e"]
+                    label: "Ratings Distribution",
+                    data: scores,
+                    backgroundColor: ["#60a5fa", "#4ade80", "#f87171", "#22c55e", "#facc15"]
                 }]
+            },
+            options: {
+                responsive: true
             }
         });
+        document.getElementById("downloadPdfButton").addEventListener("click", async () => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    // Add Title
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(20);
+    pdf.text("ClearVoice - Workplace Feedback Report", 10, 10);
+
+    // Add Summary
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Overall Feedback Summary: ${document.getElementById("summaryText").innerText}`, 10, 30);
+
+    // Add AI-Driven Insights
+    pdf.text("AI-Driven Insights:", 10, 50);
+    const insights = document.getElementById("aiInsights").textContent;
+    pdf.text(insights, 10, 60);
+
+    // Add Expert Recommendations
+    pdf.text("Expert Recommendations:", 10, 90);
+    const recommendations = document.getElementById("expertRecommendations").textContent;
+    pdf.text(recommendations, 10, 100);
+
+    // Convert charts to images
+    const charts = [
+        { element: document.getElementById("barChart"), position: [10, 120], title: "Category Ratings" },
+        { element: document.getElementById("radarChart"), position: [10, 180], title: "Performance Overview" },
+        { element: document.getElementById("pieChart"), position: [10, 240], title: "Ratings Distribution" }
+    ];
+
+    for (const chart of charts) {
+        const canvas = await html2canvas(chart.element);
+        const imgData = canvas.toDataURL("image/png");
+        pdf.text(chart.title, chart.position[0], chart.position[1] - 10); // Add chart title
+        pdf.addImage(imgData, "PNG", chart.position[0], chart.position[1], 180, 80);
+    }
+
+    document.getElementById("downloadPdfButton").addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+
+    html2canvas(document.body).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "px",
+            format: [canvas.width, canvas.height], // Matches the canvas size
+        });
+
+        pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+        pdf.save("ClearVoice_Full_Report.pdf");
+    });
+});
+
+});
+// Function to calculate and display the average
+function calculateAverage() {
+    const ratingInputs = document.querySelectorAll(".rating-input");
+    const ratings = Array.from(ratingInputs).map(input => parseFloat(input.value));
+    const validRatings = ratings.filter(rating => !isNaN(rating));
+
+    if (validRatings.length === 0) {
+        document.getElementById("averageResult").innerText = "Enter ratings to calculate the average.";
+        return;
+    }
+
+    const average = validRatings.reduce((sum, rating) => sum + rating, 0) / validRatings.length;
+
+    document.getElementById("averageResult").innerText = `Average Rating: ${average.toFixed(2)} - ` +
+        (average >= 4 ? "Great Performance" : average >= 3 ? "Moderate Performance" : "Needs Improvement");
+}
+
+// Add event listeners to all input fields
+document.querySelectorAll(".rating-input").forEach(input => {
+    input.addEventListener("input", calculateAverage);
+});
+ // Update Rating Calculator
+ document.getElementById("totalScore").textContent = totalScore;
+        document.getElementById("averageRating").textContent = averageRating.toFixed(2);
+        document.getElementById("categoryBreakdown").innerHTML = categories.map((cat, i) => {
+            const percentage = ((scores[i] / 5) * 100).toFixed(1);
+            return `<li><strong>${cat}:</strong> ${scores[i]} (${percentage}%)</li>`;
+        }).join("");
+
+        // Overall Summary
+        const summaryText = averageRating >= 4
+            ? "The workplace is performing well overall! Keep maintaining these strengths while addressing minor areas for improvement."
+            : averageRating >= 3
+            ? "The workplace has a moderate performance with key areas for improvement. Address specific concerns to boost overall satisfaction."
+            : "The workplace requires immediate attention in several key areas. Focus on transparency, support, and collaboration.";
+        document.getElementById("summaryText").innerText = summaryText;
+
+
     </script>
+
 </body>
-</html>
+</html> 
